@@ -1,11 +1,8 @@
 package com.company.db;
 
 import com.company.cofigs.Params;
-import com.company.parser.Item;
-import com.mysql.cj.util.StringUtils;
 
 import java.sql.*;
-import java.util.List;
 import java.util.Map;
 
 
@@ -23,6 +20,7 @@ public class DbConnection {
     private static Statement stmt;
     private static ResultSet rs;
     private static PreparedStatement pstmt;
+    private static String sql;
 
      public static void main(String args[]) {
         String query = "select count(*) from item";
@@ -120,5 +118,32 @@ public class DbConnection {
             closeDbConnection();
         }
         return false;
+    }
+
+    public DbConnection select(String rows) {
+        openDbConnection();
+        StringBuilder query = new StringBuilder("SELECT ");
+        query.append(rows.replaceAll(",$", ""));
+        query.append(" FROM ").append(Params.DB_NAME).append(".").append(this.tableName());
+        sql = query.toString();
+        return this;
+    }
+
+    public ResultSet all() throws SQLException {
+        return stmt.executeQuery(sql);
+    }
+
+    public String one() throws SQLException {
+        rs = stmt.executeQuery(sql + " LIMIT 1");
+        while (rs.next())
+        {
+            int id = rs.getInt("id");
+            String firstName = rs.getString("first_name");
+            String lastName = rs.getString("last_name");
+            Date dateCreated = rs.getDate("date_created");
+            boolean isAdmin = rs.getBoolean("is_admin");
+            int numPoints = rs.getInt("num_points");
+        }
+        return foundType.toString();
     }
 }

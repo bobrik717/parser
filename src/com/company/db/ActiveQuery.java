@@ -18,8 +18,25 @@ public class ActiveQuery extends DbConnection {
         for(Field field : publicFields) {
             String name = field.getName();
             String value = (String) field.get(this);
-            map.put(name, value);
+            if(value.length() > 0) {
+                map.put(name, value);
+            }
         }
         return this.insert(map);
+    }
+
+    public ActiveQuery find(String[] args) {
+        return this;
+    }
+
+    public ActiveQuery find() {
+        StringBuilder fields = new StringBuilder("");
+        Field[] publicFields = this.getClass().getFields();
+        for(Field field : publicFields) {
+            String name = field.getName();
+            fields.append(name).append(",");
+        }
+        this.select(fields.toString());
+        return this;
     }
 }
