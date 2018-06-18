@@ -12,7 +12,7 @@ import java.util.List;
 
 public class XmlParser {
 
-    public List<Item> parse(String url) {
+    public List<Item> parseItems(String url) {
         List<Item> items = new ArrayList<>();
         try {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -20,8 +20,6 @@ public class XmlParser {
             Document doc = dBuilder.parse(url);
             doc.getDocumentElement().normalize();
             NodeList nList = doc.getElementsByTagName("item");
-            System.out.println("----------------------------");
-
             for (int temp = 0; temp < nList.getLength(); temp++) {
                 Item item = new Item();
                 Node nNode = nList.item(temp);

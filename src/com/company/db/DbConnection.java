@@ -1,10 +1,10 @@
-package com.company.parser;
+package com.company.db;
 
-import java.lang.reflect.Field;
+import com.company.parser.Item;
+
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -12,7 +12,7 @@ import java.util.List;
  * running SELECT and INSERT query to retrieve and add data.
  * @author Javin Paul
  */
-public class JavaToMySQL {
+public class DbConnection {
 
     // JDBC URL, username and password of MySQL server
     private static final String url = "jdbc:mysql://localhost:3306/test?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
@@ -23,8 +23,9 @@ public class JavaToMySQL {
     private static Connection con;
     private static Statement stmt;
     private static ResultSet rs;
+    private static PreparedStatement pstmt;
 
-    public static void main(String args[]) {
+     public static void main(String args[]) {
         String query = "select count(*) from item";
 
         try {
@@ -53,7 +54,11 @@ public class JavaToMySQL {
         }
     }
 
-    public JavaToMySQL getConnection() {
+    public String tableName() {
+        return "";
+    }
+
+    public DbConnection openDbConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             // opening database connection to MySQL server
@@ -69,19 +74,38 @@ public class JavaToMySQL {
         return this;
     }
 
-    public void closeConnection() {
-        try { con.close(); } catch(SQLException se) { /*can't do anything */ }
-        try { stmt.close(); } catch(SQLException se) { /*can't do anything */ }
-        try { rs.close(); } catch(SQLException se) { /*can't do anything */ }
+    public void closeDbConnection() {
+        try {
+            con.close();
+        } catch(SQLException se) { /*can't do anything */ }
+        try {
+            stmt.close();
+        } catch(SQLException se) { /*can't do anything */ }
+        try {
+            pstmt.close();
+        } catch(SQLException se) { /*can't do anything */ }
+        try {
+            if(rs != null) {
+                rs.close();
+            }
+        } catch(SQLException se) { /*can't do anything */ }
     }
 
-    public JavaToMySQL insertItem(List<Item> models) throws SQLException {
+    public DbConnection insertItem(List<Item> models) throws SQLException {
         for (Item item : models) {
-            PreparedStatement pstmt = con.prepareStatement("INSERT INTO test.item (title, link)  VALUES (?, ?);");
+            pstmt = con.prepareStatement("INSERT INTO test.item (title, link)  VALUES (?, ?);");
             pstmt.setString(1, item.title);
             pstmt.setString(2, item.link);
             pstmt.execute();
         }
         return  this;
+    }
+
+    public Boolean insert(Map<String,String> args) {
+        String sql = "";
+        for (Map.Entry<String, String> entry : args.entrySet()) {
+            System.out.println(entry.getKey() + ":" + entry.getValue());
+        }
+        return true;
     }
 }
