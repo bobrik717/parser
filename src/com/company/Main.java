@@ -14,9 +14,12 @@ public class Main {
     public static void main(String[] args) throws SQLException {
         XmlParser parser = new XmlParser();
         List<Item> items = parser.parseItems(Main.URL);
-
-        DbConnection dbConnection = new DbConnection();
-
-        dbConnection.getConnection().insertItem(items).closeConnection();
+        items.forEach(item -> {
+            try {
+                item.save();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

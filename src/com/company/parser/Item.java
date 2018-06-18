@@ -7,10 +7,13 @@ import java.util.List;
 public class Item extends ActiveQuery {
     public String link;
     public String title;
-    public String descriptions;
+
+    public String tableName() {
+        return "item";
+    }
 
     public List<String> attributes()
     {
-        return List.of("link", "title", "description");
+        return List.of("link", "title");
     }
 }

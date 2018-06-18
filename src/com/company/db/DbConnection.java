@@ -1,6 +1,8 @@
 package com.company.db;
 
+import com.company.cofigs.Params;
 import com.company.parser.Item;
+import com.mysql.cj.util.StringUtils;
 
 import java.sql.*;
 import java.util.List;
@@ -15,9 +17,6 @@ import java.util.Map;
 public class DbConnection {
 
     // JDBC URL, username and password of MySQL server
-    private static final String url = "jdbc:mysql://localhost:3306/test?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
-    private static final String user = "root";
-    private static final String password = "";
 
     // JDBC variables for opening and managing connection
     private static Connection con;
@@ -31,7 +30,7 @@ public class DbConnection {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             // opening database connection to MySQL server
-            con = DriverManager.getConnection(url, user, password);
+            con = DriverManager.getConnection(Params.url, Params.user, Params.password);
 
             // getting Statement object to execute query
             stmt = con.createStatement();
@@ -54,6 +53,9 @@ public class DbConnection {
         }
     }
 
+    /**
+     * @return String
+     */
     public String tableName() {
         return "";
     }
@@ -62,7 +64,7 @@ public class DbConnection {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             // opening database connection to MySQL server
-            con = DriverManager.getConnection(url, user, password);
+            con = DriverManager.getConnection(Params.url, Params.user, Params.password);
 
             // getting Statement object to execute query
             stmt = con.createStatement();
@@ -82,7 +84,9 @@ public class DbConnection {
             stmt.close();
         } catch(SQLException se) { /*can't do anything */ }
         try {
-            pstmt.close();
+            if(pstmt != null) {
+                pstmt.close();
+            }
         } catch(SQLException se) { /*can't do anything */ }
         try {
             if(rs != null) {
@@ -91,21 +95,30 @@ public class DbConnection {
         } catch(SQLException se) { /*can't do anything */ }
     }
 
-    public DbConnection insertItem(List<Item> models) throws SQLException {
-        for (Item item : models) {
-            pstmt = con.prepareStatement("INSERT INTO test.item (title, link)  VALUES (?, ?);");
-            pstmt.setString(1, item.title);
-            pstmt.setString(2, item.link);
-            pstmt.execute();
-        }
-        return  this;
-    }
-
     public Boolean insert(Map<String,String> args) {
-        String sql = "";
-        for (Map.Entry<String, String> entry : args.entrySet()) {
-            System.out.println(entry.getKey() + ":" + entry.getValue());
+        openDbConnection();
+        try {
+            String sql = "INSERT INTO " + Params.DB_NAME + "." + this.tableName() + " ";
+            StringBuilder rows = new StringBuilder("(");
+            StringBuilder values = new StringBuilder(" VALUES (");
+            for (Map.Entry<String, String> entry : args.entrySet()) {
+                rows.append(entry.getKey()).append(",");
+                values.append("?,");
+            }
+            sql += rows.toString().replaceAll(",$", "") + ")" + values.toString().replaceAll(",$", "") + ")" + ";";
+            pstmt = con.prepareStatement(sql);
+            Integer i = 1;
+            for (Map.Entry<String, String> entry : args.entrySet()) {
+                pstmt.setString(i, entry.getValue());
+                i++;
+            }
+
+            return pstmt.execute();
+        } catch (SQLException se) {
+            se.printStackTrace();
+        } finally {
+            closeDbConnection();
         }
-        return true;
+        return false;
     }
 }
