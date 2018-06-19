@@ -3,6 +3,7 @@ package com.company.db;
 import com.company.cofigs.Params;
 
 import java.sql.*;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -18,9 +19,10 @@ public class DbConnection {
     // JDBC variables for opening and managing connection
     private static Connection con;
     private static Statement stmt;
-    private static ResultSet rs;
+    static ResultSet rs;
     private static PreparedStatement pstmt;
     private static String sql;
+    private static Map<String, Class<?>> args;
 
      public static void main(String args[]) {
         String query = "select count(*) from item";
@@ -120,10 +122,15 @@ public class DbConnection {
         return false;
     }
 
-    public DbConnection select(String rows) {
+    public DbConnection select(Map<String, Class<?>> args) {
         openDbConnection();
+        DbConnection.args = args;
         StringBuilder query = new StringBuilder("SELECT ");
-        query.append(rows.replaceAll(",$", ""));
+        StringBuilder rows = new StringBuilder();
+        for (Map.Entry<String, Class<?>> entry : args.entrySet()) {
+            rows.append(entry.getKey()).append(",");
+        }
+        query.append(rows.toString().replaceAll(",$", ""));
         query.append(" FROM ").append(Params.DB_NAME).append(".").append(this.tableName());
         sql = query.toString();
         return this;
@@ -133,16 +140,8 @@ public class DbConnection {
         return stmt.executeQuery(sql);
     }
 
-    public String one() throws SQLException {
+    public DbConnection one() throws SQLException {
         rs = stmt.executeQuery(sql + " LIMIT 1");
-        while (rs.next())
-        {
-            int id = rs.getInt("id");
-            String firstName = rs.getString("title");
-            String lastName = rs.getString("link");
-            Date dateCreated = rs.getDate("date");
-            System.out.format("%s, %s, %s, %s\n", id, firstName, lastName, dateCreated);
-        }
-        return "";
+        return this;
     }
 }

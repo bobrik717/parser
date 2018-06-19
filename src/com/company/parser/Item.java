@@ -2,6 +2,7 @@ package com.company.parser;
 
 import com.company.db.ActiveQuery;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class Item extends ActiveQuery {

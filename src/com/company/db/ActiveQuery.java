@@ -1,9 +1,12 @@
 package com.company.db;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class ActiveQuery extends DbConnection {
 
@@ -30,13 +33,39 @@ public class ActiveQuery extends DbConnection {
     }
 
     public ActiveQuery find() {
-        StringBuilder fields = new StringBuilder("");
+        Map<String, Class<?>> args = new HashMap<>();
         Field[] publicFields = this.getClass().getFields();
         for(Field field : publicFields) {
-            String name = field.getName();
-            fields.append(name).append(",");
+            args.put(field.getName(), field.getType());
         }
-        this.select(fields.toString());
+        this.select(args);
+        return this;
+    }
+
+    @Override
+    public ActiveQuery one() throws SQLException {
+        super.one();
+        return this;
+    }
+
+    public ActiveQuery asArray() throws SQLException, IllegalAccessException, ParseException {
+        Field[] publicFields = this.getClass().getFields();
+        while (rs.next()) {
+            for(Field field : publicFields) {
+                String value = rs.getString(field.getName());
+                if(field.getType() == int.class) {
+                    field.set(this, Integer.parseInt(value));
+                }
+                if(field.getType() == String.class) {
+                    field.set(this, value);
+                }
+                if(field.getType() == LocalDateTime.class) {
+                    LocalDateTime dateTime = LocalDateTime.parse(value);
+                    System.out.println(dateTime);
+                    field.set(this, dateTime);
+                }
+            }
+        }
         return this;
     }
 }
