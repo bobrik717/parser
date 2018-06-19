@@ -2,14 +2,14 @@ package com.company.parser;
 
 import com.company.db.ActiveQuery;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 public class Item extends ActiveQuery {
     public Integer id;
     public String link;
     public String title;
-    public String date;
+    public Date date;
 
     public String tableName() {
         return "item";
