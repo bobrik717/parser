@@ -23,6 +23,9 @@ public class Main {
 //        });
         Item i = new Item();
         i = (Item) i.find().one().asArray();
+        System.out.println(i.id);
         System.out.println(i.title);
+        System.out.println(i.link);
+        System.out.println(i.date.toString());
     }
 }

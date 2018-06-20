@@ -53,7 +53,7 @@ public class ActiveQuery extends DbConnection {
         while (rs.next()) {
             for(Field field : publicFields) {
                 String value = rs.getString(field.getName());
-                if(field.getType() == int.class) {
+                if(field.getType() == Integer.class) {
                     field.set(this, Integer.parseInt(value));
                 }
                 if(field.getType() == String.class) {
