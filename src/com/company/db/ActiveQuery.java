@@ -59,10 +59,10 @@ public class ActiveQuery extends DbConnection {
                 if(field.getType() == String.class) {
                     field.set(this, value);
                 }
-                if(field.getType() == LocalDateTime.class) {
-                    LocalDateTime dateTime = LocalDateTime.parse(value);
-                    System.out.println(dateTime);
-                    field.set(this, dateTime);
+                if(field.getType() == Date.class) {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    Date date = dateFormat.parse(value);
+                    field.set(this, date);
                 }
             }
         }
